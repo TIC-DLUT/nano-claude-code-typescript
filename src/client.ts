@@ -5,9 +5,9 @@ export class ClaudeClient {
   private apiKey: string;
   private httpClient: HttpClient; // 这里可以替换为具体的HTTP客户端类型
 
-  private constructor() {
-    this.baseURL = BACKEND_URL;
-    this.apiKey = API_KEY;
+  private constructor(baseURL: string, apiKey: string) {
+    this.baseURL = baseURL;
+    this.apiKey = apiKey;
     this.httpClient = new HttpClient();
   }
 

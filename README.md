@@ -5,13 +5,14 @@
 **nano-claude-code-typescript** 是一个受 Anthropic [Claude Code](https://github.com/anthropics/claude-code) 和 [nano-claude-code](https://github.com/TIC-DLUT/nano-claude-code) 启发，使用 **TypeScript** 从零开始纯手工打造的轻量级 AI 编码智能体（Agent），并且考虑安全性，不使用`axios`而是使用原生的 `fetch` API。
 
 ## QuickStart
-``` shell
+
+```shell
 git clone https://github.com/TIC-DLUT/nano-claude-code-typescript.git
 cd .\nano-claude-code-typescript\
 code .
 ```
 
-``` shell
+```shell
 pnpm install
 pnpm start
 ```
