@@ -1,14 +1,18 @@
 import { HttpClient } from './httpClient.ts';
+import { ClaudeCall } from './call.ts';
+import { RequestBody } from './types/request.ts';
 
 export class ClaudeClient {
   private baseURL: string;
   private apiKey: string;
   private httpClient: HttpClient; // 这里可以替换为具体的HTTP客户端类型
+  private caller: ClaudeCall; // 添加 caller 属性
 
   private constructor(baseURL: string, apiKey: string) {
     this.baseURL = baseURL;
     this.apiKey = apiKey;
     this.httpClient = new HttpClient();
+    this.caller = new ClaudeCall(this.httpClient); // 在构造函数中初始化 caller 属性，并传入当前 ClaudeClient 实例
   }
 
   // 静态工厂方法，创建ClaudeClient实例
@@ -21,5 +25,10 @@ export class ClaudeClient {
     }
 
     return new ClaudeClient(baseURL, apiKey);
+  }
+
+  // 提供一个公共方法，让用户可以使用call()方法调用Claude API
+  async call(requestBody: RequestBody): Promise<ResponseBody> {
+    return this.caller.callClaude(this.baseURL, this.apiKey, requestBody);
   }
 }

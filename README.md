@@ -4,6 +4,25 @@
 
 **nano-claude-code-typescript** 是一个受 Anthropic [Claude Code](https://github.com/anthropics/claude-code) 和 [nano-claude-code](https://github.com/TIC-DLUT/nano-claude-code) 启发，使用 **TypeScript** 从零开始纯手工打造的轻量级 AI 编码智能体（Agent），并且考虑安全性，不使用`axios`而是使用原生的 `fetch` API。
 
+## 为什么要“从零手搓”？
+
+现在的 AI 封装库越来越厚重，当 Agent 陷入死循环、工具调用失败、或者上下文丢失时，新手往往不知所措。
+
+作为教学项目，nano-claude-code-python 将带你亲自趟过这些坑：
+
+- 亲自手写底层 SDK，搞懂 LLM 接口的 JSON Schema 长什么样。
+- 亲自解析 SSE 流式响应，体验在终端打印“打字机”效果的快感。
+- 亲自写一个 for 循环来实现 Agent 的“观察 -> 思考 -> 行动”（ReAct）闭环。
+- 亲自赋予 LLM 读写本地文件和执行 Bash 命令的危险而强大的能力。
+- 亲自设计一个TODO架构的Agent。
+- 亲自设计subAgents架构。
+- 亲自完成skills框架的设计，包括加载，调用。
+- 亲自参与压缩流程的设计，完成一个简单的压缩机制。
+- 亲自设计一个Tasks系统，深入了解Agent怎么设计task的依赖和规划。
+- 亲自实现一个Backgroud Tasks机制。
+- 亲自实现多智能体架构。
+- 亲自实现记忆机制，对话记录持久化，赋予Agent灵魂。
+
 ## QuickStart
 
 ```shell
@@ -16,6 +35,16 @@ code .
 pnpm install
 pnpm start
 ```
+
+## 目录
+
+- [ ] day1: 从零实现一个claude sdk
+
+## Other Version
+
+- [nano-claude-code](https://github.com/TIC-DLUT/nano-claude-code)
+
+- [nano-claude-code-python](https://github.com/TIC-DLUT/nano-claude-code-python)
 
 ## 贡献
 
