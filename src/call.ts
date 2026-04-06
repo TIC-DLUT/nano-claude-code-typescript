@@ -158,7 +158,7 @@ export class ClaudeCall {
         }
       });
 
-      // 重要步骤：流彻底结束后，将 AI 的完整回复存入 Conversation 历史
+      // 流彻底结束后，将 AI 的完整回复存入 Conversation 历史
       if (accumulatedResponse) {
         const assistantMessage = new Message('assistant', accumulatedResponse);
         conversation.addMessage(assistantMessage);
