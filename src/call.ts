@@ -88,7 +88,7 @@ export class ClaudeCall {
     }));
 
     const body = {
-      model: requestBody.model || 'claude-3-5-sonnet-20240620',
+      model: requestBody.model || 'claude-4.6-sonnet',
       messages: messageForAPI,
       max_tokens: requestBody.max_tokens || 4096,
       system: requestBody.system || '',
