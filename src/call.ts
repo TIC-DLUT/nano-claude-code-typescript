@@ -21,6 +21,7 @@ export class ClaudeCall {
     const headers: RequestHeader = {
       'x-api-key': apiKey,
       'anthropic-version': '2024-06-01',
+      Authorization: `Bearer ${apiKey}`,
     };
 
     requestBody.messages.forEach((msg) => {
@@ -34,7 +35,7 @@ export class ClaudeCall {
     }));
 
     const body = {
-      model: requestBody.model || 'claude-sonnet-4.6',
+      model: requestBody.model || 'claude-4.6-sonnet',
       messages: messageForAPI,
       max_tokens: requestBody.max_tokens,
       system: requestBody.system || '',

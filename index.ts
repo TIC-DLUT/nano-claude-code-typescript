@@ -20,7 +20,7 @@ const claude = ClaudeClient.newClaudeClient(baseURL, apiKey);
 async function test() {
   try {
     const response = await claude.call({
-      model: 'claude-sonnet-4.6',
+      model: 'claude-4.6-sonnet',
       messages: [{ role: 'user', content: 'Hello, Claude!' }],
       max_tokens: 100,
     });
