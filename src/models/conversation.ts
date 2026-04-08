@@ -13,7 +13,7 @@ export class Conversation {
 
   //获取所有历史消息的文本内容
   getAllTextContent(): string {
-    return this.history.map((msg) => this.extractTextContent(msg)).join('\n');
+    return this.history.map((msg) => this.extractTextFromMessage(msg)).join('\n');
   }
 
   // 获取最新消息的文本内容
@@ -23,7 +23,7 @@ export class Conversation {
     }
     const latestMessage = this.history[this.history.length - 1];
     if (latestMessage.content) {
-      return this.extractTextContent(latestMessage);
+      return this.extractTextFromMessage(latestMessage);
     }
     return '';
   }

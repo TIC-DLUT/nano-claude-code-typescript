@@ -10,11 +10,13 @@ describe('ClaudeClient', () => {
   it('should call Claude API and return response text', async () => {
     const client = new ClaudeClient(process.env.CLAUDE_BASE_URL, process.env.CLAUDE_API_KEY);
     const response = await client.call({
-      model: 'claude-4.6-sonnet',
+      model: 'claude-sonnet-4-6',
       messages: [{ role: 'user', content: 'Hello, Claude!' }],
       max_tokens: 100,
     });
-    // 预期能够成功调用Claude API并返回文本内容
-    expect(typeof response).toBe('object');
+    // 打印响应内容以便调试
+    console.log('Claude API Response:', response);
+    // 预期能够成功调用Claude API并返回json
+    expect(typeof response).toBe('string');
   });
 });

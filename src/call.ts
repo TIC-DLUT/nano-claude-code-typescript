@@ -20,7 +20,7 @@ export class ClaudeCall {
   ): Promise<string> {
     const headers: RequestHeader = {
       'x-api-key': apiKey,
-      'anthropic-version': '2024-06-01',
+      'anthropic-version': '2023-06-01',
       Authorization: `Bearer ${apiKey}`,
     };
 
