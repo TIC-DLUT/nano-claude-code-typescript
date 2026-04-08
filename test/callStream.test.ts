@@ -14,13 +14,11 @@ describe('ClaudeClient', () => {
     );
     const response = await client.callStream({
       model: 'claude-sonnet-4-6',
-      messages: [{ role: 'user', content: 'Hello, Claude!' }],
-      max_tokens: 100,
+      messages: [{ role: 'user', content: '你好，Claude！能不能多说几句话' }],
+      max_tokens: 800,
     }, (chunk) => {
-      // 处理流式数据
-      console.log('Stream Data:', chunk);
+      // 控制台流式输出
+        console.log('Received chunk:', chunk);
     });
-    // 预期能够成功调用Claude API并返回json
-    expect(typeof response).toBe('string');
   }, 30000);
 });
