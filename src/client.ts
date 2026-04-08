@@ -4,7 +4,6 @@ import { RequestBody } from './types/request.ts';
 import { Conversation } from './models/conversation.ts';
 
 export class ClaudeClient {
-  private baseURL: string;
   private apiKey: string;
   private httpClient: HttpClient; // 这里可以替换为具体的HTTP客户端类型
   private caller: ClaudeCall; // 添加 caller 属性
@@ -13,7 +12,7 @@ export class ClaudeClient {
   private constructor(baseURL: string, apiKey: string) {
     this.baseURL = baseURL;
     this.apiKey = apiKey;
-    this.httpClient = new HttpClient();
+    this.httpClient = new HttpClient(baseURL);
     this.caller = new ClaudeCall(this.httpClient); // 在构造函数中初始化 caller 属性，并传入当前 ClaudeClient 实例
     this.defaultConversation = new Conversation();
   }
@@ -33,7 +32,7 @@ export class ClaudeClient {
   // 提供一个公共方法，让用户可以使用call()方法调用Claude API
   async call(requestBody: RequestBody, conversation?: Conversation): Promise<string> {
     const activeConv = conversation || this.defaultConversation;
-    return this.caller.callClaude(this.baseURL, this.apiKey, requestBody, activeConv);
+    return this.caller.callClaude(this.apiKey, requestBody, activeConv);
   }
 
   //提供一个公共方法，让用户可以使用callStream()方法调用Claude API的流式接口
@@ -43,6 +42,6 @@ export class ClaudeClient {
     conversation?: Conversation,
   ): Promise<void> {
     const activeConv = conversation || this.defaultConversation;
-    return this.caller.callClaudeStream(this.baseURL, this.apiKey, requestBody, onData, activeConv);
+    return this.caller.callClaudeStream(this.apiKey, requestBody, activeConv, onData);
   }
 }

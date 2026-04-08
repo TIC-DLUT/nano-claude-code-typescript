@@ -12,13 +12,14 @@ describe('ClaudeClient', () => {
       process.env.CLAUDE_BASE_URL as string,
       process.env.CLAUDE_API_KEY as string,
     );
-    const response = await client.call({
+    const response = await client.callStream({
       model: 'claude-sonnet-4-6',
       messages: [{ role: 'user', content: 'Hello, Claude!' }],
       max_tokens: 100,
+    }, (chunk) => {
+      // 处理流式数据
+      console.log('Stream Data:', chunk);
     });
-    // 打印响应内容以便调试
-    console.log('Claude API Response:', response);
     // 预期能够成功调用Claude API并返回json
     expect(typeof response).toBe('string');
   }, 30000);

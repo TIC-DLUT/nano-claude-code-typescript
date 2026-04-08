@@ -1,132 +1,112 @@
 // 创建httpClient给ClaudeClient使用，封装HTTP请求逻辑,使用原生fetch API(axios最近被投毒了就不用了)
 
 export class HttpClient {
-  /**
-   * 通用的 POST 请求方法
-   * @param url 请求地址
-   * @param data 发送的 JSON 数据
-   * @param headers 包含鉴权和其他信息的请求头
-   */
+  private baseUrl: string;
 
-  // 增加泛型，让调用者可以指定返回数据的类型，提升类型安全性
-  async post<T>(
-    url: string,
-    data: any,
-    headers: Record<string, string> = {},
-    timeout: number = 10000,
-  ): Promise<T> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout); // 设置请求超时时间为10秒
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...headers,
-        },
-        body: JSON.stringify(data),
-        signal: controller.signal, // 关联 AbortController 的 signal
-      });
-
-      clearTimeout(timeoutId); // 请求完成后清除超时定时器
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      return (await response.json()) as T;
-    } catch (error) {
-      clearTimeout(timeoutId); // 请求失败时也清除超时定时器
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        console.error('HTTP POST 请求超时:', error);
-        throw new Error('请求超时，请稍后再试');
-      }
-      console.error('HTTP POST 请求失败:', error);
-      throw error;
-    }
+  constructor(baseUrl: string) {
+    // 去除baseUrl末尾的斜杠，确保URL拼接正确
+    this.baseUrl = baseUrl.replace(/\/+$/, '');
   }
 
-  // 提供流式传输POST请求方法，使用原生fetch的ReadableStream来处理流式响应
-  async postStream(
-    url: string,
-    data: any,
-    headers: Record<string, string> = {},
-    onData: (chunk: string) => void,
-    timeout: number = 10000,
-  ): Promise<void> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout); // 设置请求超时时间为10秒
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...headers,
-        },
-        body: JSON.stringify(data),
-        signal: controller.signal, // 关联 AbortController 的 signal
-      });
-
-      clearTimeout(timeoutId); // 请求完成后清除超时定时器
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('无法获取响应流');
-      }
-
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        onData(chunk);
-      }
-    } catch (error) {
-      clearTimeout(timeoutId); // 请求失败时也清除超时定时器
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        console.error('HTTP POST 请求超时:', error);
-        throw new Error('请求超时，请稍后再试');
-      }
-      console.error('HTTP POST 请求失败:', error);
-      throw error;
-    }
+  private buildUrl(endpoint: string): string {
+    // 确保endpoint以斜杠开头，避免拼接错误
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${this.baseUrl}${normalizedEndpoint}`;
   }
 
-  async get<T>(
-    url: string,
-    headers: Record<string, string> = {},
-    timeout: number = 10000,
-  ): Promise<T> {
-    const controller = new AbortController();
+  // 提取post和postStream中重复的逻辑，避免重复代码，复用已有的buildUrl方法
+  private async executeFetch(
+    endpoint: string,
+    options: RequestInit,
+    timeout: number = 30000,
+  ): Promise<Response> {
+    const url = this.buildUrl(endpoint);
+    const controller = new AbortController(); // 创建一个AbortController实例，用于控制请求的取消
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     try {
       const response = await fetch(url, {
-        method: 'GET',
+        ...options,
+        signal: controller.signal, // 将AbortController的signal传递给fetch，以便在超时时取消请求
         headers: {
           'Content-Type': 'application/json',
-          ...headers,
+          ...options.headers,
         },
-        signal: controller.signal,
       });
       clearTimeout(timeoutId);
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
-
-      return (await response.json()) as T;
+      return response;
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof DOMException && error.name === 'AbortError') {
-        console.error('HTTP GET 请求超时:', error);
+        console.error('HTTP 请求超时:', error);
         throw new Error('请求超时，请稍后再试');
       }
-      console.error('HTTP GET 请求失败:', error);
+      console.error('HTTP 请求失败:', error);
       throw error;
     }
+  }
+
+  // 封装POST请求，复用executeFetch方法
+  async post<T>(
+    endpoint: string,
+    data: any,
+    headers: Record<string, string> = {},
+    timeout?: number,
+  ): Promise<T> {
+    const response = await this.executeFetch(
+      endpoint,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers,
+      },
+      timeout,
+    );
+    return (await response.json()) as T;
+  }
+
+  // 封装流式POST请求，复用executeFetch方法
+  async postStream(
+    endpoint: string,
+    data: any,
+    headers: Record<string, string> = {},
+    onData: (chunk: string) => void,
+    timeout?: number,
+  ): Promise<void> {
+    const response = await this.executeFetch(
+      endpoint,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers,
+      },
+      timeout,
+    );
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('无法获取响应流');
+    }
+
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      onData(chunk);
+    }
+  }
+
+  // 封装GET请求，复用executeFetch方法
+  async Get<T>(
+    endpoint: string,
+    headers: Record<string, string> = {},
+    timeout?: number,
+  ): Promise<T> {
+    const response = await this.executeFetch(endpoint, { method: 'GET', headers }, timeout);
+    return (await response.json()) as T;
   }
 }

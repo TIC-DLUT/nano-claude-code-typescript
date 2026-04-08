@@ -13,11 +13,12 @@ export class ClaudeCall {
   }
 
   async callClaude(
-    url: string,
     apiKey: string,
     requestBody: RequestBody,
     conversation: Conversation,
   ): Promise<string> {
+    const endpoint = '/v1/messages';
+
     const headers: RequestHeader = {
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
@@ -42,7 +43,7 @@ export class ClaudeCall {
     };
 
     try {
-      const response = await this.httpClient.post(url, body, headers);
+      const response = await this.httpClient.post(endpoint, body, headers);
       // 接收repsponse并提取文本内容,在httpclient中已经处理了json解析和错误处理
       const responseData = response as ResponseBody;
       conversation.rawResponses.push(responseData);
@@ -59,12 +60,13 @@ export class ClaudeCall {
 
   //实现流式传输
   async callClaudeStream(
-    url: string,
     apiKey: string,
     requestBody: RequestBody,
     conversation: Conversation,
     onData: (data: string) => void,
   ): Promise<void> {
+    const endpoint = '/v1/messages';
+
     const headers: RequestHeader = {
       'x-api-key': apiKey,
       'anthropic-version': '2024-06-01',
@@ -101,7 +103,7 @@ export class ClaudeCall {
 
     try {
       // 3. 开始执行流式请求
-      await this.httpClient.postStream(url, body, headers, (chunk) => {
+      await this.httpClient.postStream(endpoint, body, headers, (chunk) => {
         buffer += chunk;
         const lines = buffer.split('\n');
 
