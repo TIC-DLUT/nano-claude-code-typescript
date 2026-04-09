@@ -1,11 +1,32 @@
 //定义content类型
-export interface ContentBlock {
-  type: 'text' | 'tool_use' | 'tool_result';
-  text?: string;
-  citations?: Citation[];
-  tool_name?: string;
-  tool_id?: string;
-  tool_results?: string;
+export type ContentBlock = TextBlock | ThinkingBlock | ToolUseBlock;
+
+/** 标准文本块 */
+export interface TextBlock {
+  type: 'text';
+  text: string;
+}
+
+/** * [2026 核心更新] 思维块
+ * 当 RequestBody 开启了 thinking 模式时，模型会先输出此块。
+ */
+export interface ThinkingBlock {
+  type: 'thinking';
+  /** 模型的推理逻辑 */
+  thinking: string;
+  /** 某些安全合规场景下的签名校验 */
+  signature?: string;
+}
+
+/** 工具调用块 */
+export interface ToolUseBlock {
+  type: 'tool_use';
+  /** 工具调用的唯一 ID，后续提交 tool_result 时必须引用 */
+  id: string;
+  /** 工具名称 */
+  name: string;
+  /** 工具输入参数（JSON 对象） */
+  input: Record<string, any>;
 }
 
 // 定义引用类型
@@ -25,7 +46,7 @@ export interface ResponseBody {
   id: string;
   type: 'message';
   role: 'assistant';
-  content: ContentBlock[];
+  content: Array<ContentBlock>;
   model: string;
   stop_reason: 'end_turn' | 'max_tokens' | 'stop_sequence' | null;
   usage: {

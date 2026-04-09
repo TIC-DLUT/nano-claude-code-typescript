@@ -1,6 +1,6 @@
 // 定义请求头类型
 import { Message } from '../models/message.ts';
-import { ToolDefinition } from './tools.ts';
+import { Tool } from './tools.ts';
 
 export interface RequestHeader {
   'x-api-key': string;
@@ -63,7 +63,7 @@ export interface RequestBody {
   cache_control?: {
     type: 'ephemeral' | 'automatic';
   };
-  tools?: Array<ToolDefinition>; // 工具列表，供模型调用
+  tools?: Array<Tool>; // 工具列表，供模型调用
   tool_choice?: { type: 'auto' } | { type: 'any' } | { type: 'tool'; name: string }; // 是否允许模型自动选择工具
   stream?: boolean;
 }
