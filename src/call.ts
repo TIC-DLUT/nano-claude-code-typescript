@@ -19,7 +19,7 @@ export class ClaudeCall {
     requestBody: RequestBody,
     conversation: Conversation,
     options: StreamOptions = { stream: false },
-  ): Promise<T> {
+  ): Promise<string | void> {
     const { endpoint, headers, body } = this.prepareContext(apiKey, requestBody, conversation);
 
     try {
