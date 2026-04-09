@@ -4,73 +4,51 @@ import { HttpClient } from './httpClient.ts';
 import { RequestBody, RequestHeader } from './types/request.ts';
 import { ResponseBody } from './types/response.ts';
 import { Conversation } from './models/conversation.ts';
+import { StreamOptions } from './types/stream.ts';
 
 export class ClaudeCall {
   private httpClient: HttpClient;
+  private readonly API_VERSION = '2023-06-01'; // 统一管理版本号
 
   constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
   }
 
-  async callClaude(
+  async call(
     apiKey: string,
     requestBody: RequestBody,
     conversation: Conversation,
-  ): Promise<string> {
-    const endpoint = '/v1/messages';
-
-    const headers: RequestHeader = {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      Authorization: `Bearer ${apiKey}`,
-    };
-
-    requestBody.messages.forEach((msg) => {
-      const messageInstance = msg instanceof Message ? msg : new Message(msg.role, msg.content);
-      conversation.addMessage(messageInstance);
-    });
-
-    const messageForAPI = conversation.history.map((msg) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
-
-    const body = {
-      model: requestBody.model || 'claude-4.6-sonnet',
-      messages: messageForAPI,
-      max_tokens: requestBody.max_tokens,
-      system: requestBody.system || '',
-    };
+    options: StreamOptions = { stream: false },
+  ): Promise<T> {
+    const { endpoint, headers, body } = this.prepareContext(apiKey, requestBody, conversation);
 
     try {
-      const response = await this.httpClient.post(endpoint, body, headers);
-      // 接收repsponse并提取文本内容,在httpclient中已经处理了json解析和错误处理
-      const responseData = response as ResponseBody;
-      conversation.rawResponses.push(responseData);
-
-      const assistantMessage = new Message(responseData.role, responseData.content);
-      conversation.addMessage(assistantMessage);
-
-      return conversation.getLatestTextContent();
+      if (options.stream) {
+        // 如果提供了 onData 回调，使用流式处理
+        return await this.callClaudeStream(
+          endpoint,
+          { ...body, stream: true },
+          headers,
+          conversation,
+          options.onData,
+        );
+      } else {
+        // 否则使用普通的非流式处理
+        return await this.callClaude(endpoint, { ...body, stream: false }, headers, conversation);
+      }
     } catch (error) {
-      console.error('Error calling Claude API:', error);
+      console.error('出现callClaude错误:', error);
       throw error;
     }
   }
 
-  //实现流式传输
-  async callClaudeStream(
-    apiKey: string,
-    requestBody: RequestBody,
-    conversation: Conversation,
-    onData: (data: string) => void,
-  ): Promise<void> {
+  private prepareContext(apiKey: string, requestBody: RequestBody, conversation: Conversation) {
     const endpoint = '/v1/messages';
 
     const headers: RequestHeader = {
       'x-api-key': apiKey,
-      'anthropic-version': '2024-06-01',
-      'content-type': 'application/json',
+      'anthropic-version': this.API_VERSION,
+      Authorization: `Bearer ${apiKey}`,
     };
 
     // 1. 同步当前请求的消息到本地对话历史（如果是新消息）
@@ -95,9 +73,41 @@ export class ClaudeCall {
       messages: messageForAPI,
       max_tokens: requestBody.max_tokens || 4096,
       system: requestBody.system || '',
-      stream: true, // 开启流式模式
     };
 
+    return { endpoint, headers, body };
+  }
+
+  // 实现普通的非流式调用
+  private async callClaude(
+    endpoint: string,
+    body: any,
+    headers: RequestHeader,
+    conversation: Conversation,
+  ): Promise<string> {
+    try {
+      const response = await this.httpClient.post(endpoint, body, headers);
+      const responseData = response as ResponseBody;
+      conversation.rawResponses.push(responseData);
+
+      const assistantMessage = new Message(responseData.role, responseData.content);
+      conversation.addMessage(assistantMessage);
+
+      return conversation.getLatestTextContent();
+    } catch (error) {
+      console.error('Error calling Claude API:', error);
+      throw error;
+    }
+  }
+
+  //实现流式传输
+  async callClaudeStream(
+    endpoint: string,
+    body: any,
+    headers: RequestHeader,
+    conversation: Conversation,
+    onData: (data: string) => void,
+  ): Promise<void> {
     let accumulatedResponse = ''; // 核心：用于拼接完整回复并存入历史
     let buffer = ''; // 用于存储未处理完的 SSE 碎片
 

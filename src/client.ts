@@ -32,7 +32,7 @@ export class ClaudeClient {
   // 提供一个公共方法，让用户可以使用call()方法调用Claude API
   async call(requestBody: RequestBody, conversation?: Conversation): Promise<string> {
     const activeConv = conversation || this.defaultConversation;
-    return this.caller.callClaude(this.apiKey, requestBody, activeConv);
+    return this.caller.call(this.apiKey, requestBody, activeConv, { stream: false });
   }
 
   //提供一个公共方法，让用户可以使用callStream()方法调用Claude API的流式接口
@@ -42,6 +42,6 @@ export class ClaudeClient {
     conversation?: Conversation,
   ): Promise<void> {
     const activeConv = conversation || this.defaultConversation;
-    return this.caller.callClaudeStream(this.apiKey, requestBody, activeConv, onData);
+    return this.caller.call(this.apiKey, requestBody, activeConv, { stream: true, onData });
   }
 }
