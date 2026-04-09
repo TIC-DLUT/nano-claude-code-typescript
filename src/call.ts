@@ -16,7 +16,7 @@ export class ClaudeCall {
   }
 
   async call(requestBody: RequestBody, conversation: Conversation): Promise<string> {
-    const ctx = this.prepareContext(requestBody, conversation, false);
+    const ctx = this.prepareContext({ ...requestBody, stream: false }, conversation);
     return this.callClaude(ctx.endpoint, ctx.body, ctx.headers, conversation);
   }
 
@@ -25,11 +25,11 @@ export class ClaudeCall {
     conversation: Conversation,
     onData: (data: string) => void,
   ): Promise<void> {
-    const ctx = this.prepareContext(requestBody, conversation, true);
+    const ctx = this.prepareContext({ ...requestBody, stream: true }, conversation);
     return this.callClaudeStream(ctx.endpoint, ctx.body, ctx.headers, conversation, onData);
   }
 
-  private prepareContext(requestBody: RequestBody, conversation: Conversation, stream = false) {
+  private prepareContext(requestBody: RequestBody, conversation: Conversation) {
     const endpoint = '/v1/messages';
 
     const headers: RequestHeader = {
@@ -60,10 +60,10 @@ export class ClaudeCall {
       model: requestBody.model || 'claude-4.6-sonnet',
       messages: messageForAPI,
       max_tokens: requestBody.max_tokens || 4096,
-      system: requestBody.system || '',
+      system: requestBody.system ?? '',
       tools: requestBody.tools,
       tool_choice: requestBody.tool_choice,
-      stream, // 是否启用流式响应
+      stream: requestBody.stream, // 是否启用流式响应
     };
 
     return { endpoint, headers, body };
