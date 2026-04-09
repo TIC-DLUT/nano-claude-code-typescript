@@ -1,4 +1,4 @@
-export interface Tool {
+export interface ToolDefinition {
   name: string;
   description: string; // claude工具的描述信息
   input_schema: {
