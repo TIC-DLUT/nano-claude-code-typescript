@@ -1,10 +1,11 @@
 // 定义请求头类型
 import { Message } from '../models/message.ts';
-import { Tool } from '../models/tool.ts';
+import { Tool } from './tools.ts';
 
 export interface RequestHeader {
   'x-api-key': string;
   'anthropic-version': string;
+  Authorization: string;
   'Content-Type': 'application/json';
 }
 

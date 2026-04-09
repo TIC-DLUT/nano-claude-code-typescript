@@ -7,38 +7,35 @@ import { Conversation } from './models/conversation.ts';
 
 export class ClaudeCall {
   private httpClient: HttpClient;
+  private apiKey: string;
   private readonly API_VERSION = '2023-06-01'; // 统一管理版本号
 
-  constructor(httpClient: HttpClient) {
+  constructor(httpClient: HttpClient, apiKey: string) {
     this.httpClient = httpClient;
+    this.apiKey = apiKey;
   }
 
-  async call(
-    apiKey: string,
-    requestBody: RequestBody,
-    conversation: Conversation,
-  ): Promise<string | void> {
-    const ctx = this.prepareContext(apiKey, requestBody, conversation);
+  async call(requestBody: RequestBody, conversation: Conversation): Promise<string> {
+    const ctx = this.prepareContext(requestBody, conversation, false);
     return this.callClaude(ctx.endpoint, ctx.body, ctx.headers, conversation);
   }
 
   async callStream(
-    apiKey: string,
     requestBody: RequestBody,
     conversation: Conversation,
     onData: (data: string) => void,
   ): Promise<void> {
-    const ctx = this.prepareContext(apiKey, { ...requestBody, stream: true }, conversation);
+    const ctx = this.prepareContext(requestBody, conversation, true);
     return this.callClaudeStream(ctx.endpoint, ctx.body, ctx.headers, conversation, onData);
   }
 
-  private prepareContext(apiKey: string, requestBody: RequestBody, conversation: Conversation) {
+  private prepareContext(requestBody: RequestBody, conversation: Conversation, stream = false) {
     const endpoint = '/v1/messages';
 
     const headers: RequestHeader = {
-      'x-api-key': apiKey,
+      'x-api-key': this.apiKey,
       'anthropic-version': this.API_VERSION,
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${this.apiKey}`,
     };
 
     // 1. 同步当前请求的消息到本地对话历史（如果是新消息）
@@ -63,6 +60,9 @@ export class ClaudeCall {
       messages: messageForAPI,
       max_tokens: requestBody.max_tokens || 4096,
       system: requestBody.system || '',
+      tools: requestBody.tools,
+      tool_choice: requestBody.tool_choice,
+      stream, // 是否启用流式响应
     };
 
     return { endpoint, headers, body };

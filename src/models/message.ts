@@ -1,5 +1,6 @@
 // 定义claude信息类
 import { ContentBlock } from '../types/response.ts';
+import { ResponseBody } from '../types/response.ts';
 
 export class Message {
   role: 'user' | 'assistant';
