@@ -10,6 +10,7 @@ export class ClaudeClient {
   private httpClient: HttpClient; // 这里可以替换为具体的HTTP客户端类型
   private caller: ClaudeCall; // 添加 caller 属性
   private defaultConversation: Conversation; // 添加 conversation 属性
+  private defaultModel: string = 'claude-sonnet-4-6'; // 添加默认模型属性
 
   private constructor(baseURL: string, apiKey: string, options?: ClaudeClientOptions) {
     this.baseURL = baseURL;
