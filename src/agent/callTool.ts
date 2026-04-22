@@ -3,7 +3,7 @@
 import type { MessageParam, RequestBody } from '../types/request.ts';
 import type { ToolResultBlock, ToolUseBlock } from '../types/response.ts';
 import type { Tool } from '../types/tools.ts';
-import { ClaudeClient } from '../client.ts';
+import { ClaudeClient } from '../llm/client.ts';
 import { Conversation } from '../models/conversation.ts';
 import { executeTool } from '../tools/execute.ts';
 import { getToolsForRequest, sanitizeToolsForRequest } from '../tools/registry.ts';

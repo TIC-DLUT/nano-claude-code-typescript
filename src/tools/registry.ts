@@ -1,5 +1,5 @@
 // 工具注册（schema + handler）
-import { ToolManager } from '../toolManager.ts';
+import { ToolManager } from './toolManager.ts';
 import type { ClientTool } from '../types/tools.ts';
 import type { Tool } from '../types/tools.ts';
 

@@ -1,8 +1,8 @@
 import { HttpClient } from './httpClient.ts';
 import { ClaudeCall } from './call.ts';
-import { RequestBody } from './types/request.ts';
-import { Conversation } from './models/conversation.ts';
-import { ClaudeClientOptions } from './types/client.ts';
+import { RequestBody } from '../types/request.ts';
+import { Conversation } from '../models/conversation.ts';
+import { ClaudeClientOptions } from '../types/client.ts';
 
 export class ClaudeClient {
   private baseURL: string;

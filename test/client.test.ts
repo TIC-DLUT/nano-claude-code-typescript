@@ -1,7 +1,7 @@
 // 使用vitest测试client.ts中的函数
 import { describe, it, expect, vi } from 'vitest';
-import { ClaudeClient } from '../src/client.ts';
-import { ClaudeCall } from '../src/call.ts';
+import { ClaudeClient } from '../src/llm/client.ts';
+import { ClaudeCall } from '../src/llm/call.ts';
 import { Message } from '../src/models/message.ts';
 
 describe('ClaudeClient', () => {

@@ -1,10 +1,10 @@
 // 将请求头等封装在此处
-import { Message } from './models/message.ts';
+import { Message } from '../models/message.ts';
 import { HttpClient } from './httpClient.ts';
-import { RequestBody, RequestHeader } from './types/request.ts';
-import { ContentBlock, ResponseBody } from './types/response.ts';
-import { Conversation } from './models/conversation.ts';
-import { ClaudeClientOptions } from './types/client.ts';
+import { RequestBody, RequestHeader } from '../types/request.ts';
+import { ContentBlock, ResponseBody } from '../types/response.ts';
+import { Conversation } from '../models/conversation.ts';
+import { ClaudeClientOptions } from '../types/client.ts';
 
 export class ClaudeCall {
   private httpClient: HttpClient;

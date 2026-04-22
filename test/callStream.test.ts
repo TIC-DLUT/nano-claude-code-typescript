@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { describe, it, expect } from 'vitest';
-import { ClaudeClient } from '../src/client.ts';
+import { ClaudeClient } from '../src/llm/client.ts';
 
 describe('ClaudeClient', () => {
   it('should call Claude API and return response text', async () => {

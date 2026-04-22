@@ -1,5 +1,5 @@
 // 创建工具
-import { ClientTool } from './types/tools.ts';
+import { ClientTool } from '../types/tools.ts';
 
 export function createTool(tool: ClientTool): ClientTool {
   // 工具创建错误处理
