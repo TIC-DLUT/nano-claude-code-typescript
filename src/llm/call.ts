@@ -13,14 +13,21 @@ export class ClaudeCall {
   private betas: string[];
   private defaultHeaders: Record<string, string>;
   private sendAuthorizationHeader: boolean;
+  private model?: string;
 
-  constructor(httpClient: HttpClient, apiKey: string, options?: ClaudeClientOptions) {
+  constructor(
+    httpClient: HttpClient,
+    apiKey: string,
+    options?: ClaudeClientOptions,
+    model?: string,
+  ) {
     this.httpClient = httpClient;
     this.apiKey = apiKey;
     this.apiVersion = options?.apiVersion ?? '2023-06-01';
     this.betas = options?.betas ?? [];
     this.defaultHeaders = options?.defaultHeaders ?? {};
     this.sendAuthorizationHeader = options?.sendAuthorizationHeader ?? true;
+    this.model = model;
   }
 
   async call(requestBody: RequestBody, conversation: Conversation): Promise<string> {
@@ -39,6 +46,8 @@ export class ClaudeCall {
 
   private prepareContext(requestBody: RequestBody, conversation: Conversation) {
     const endpoint = '/v1/messages';
+
+    const finalModel = requestBody.model ?? this.model;
 
     const headers: RequestHeader = {
       'x-api-key': this.apiKey,
@@ -69,8 +78,8 @@ export class ClaudeCall {
     const body: RequestBody = {
       ...requestBody,
       // 兜底：避免用户传空值导致 400
-      model: requestBody.model || 'claude-sonnet-4-6',
-      max_tokens: requestBody.max_tokens || 4096,
+      model: finalModel,
+      max_tokens: requestBody.max_tokens ?? 4096,
       messages: messageForAPI,
       stream: requestBody.stream, // 是否启用流式响应
     };

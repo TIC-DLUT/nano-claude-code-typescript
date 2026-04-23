@@ -3,6 +3,7 @@ import { ClaudeCall } from './call.ts';
 import { RequestBody } from '../types/request.ts';
 import { Conversation } from '../models/conversation.ts';
 import { ClaudeClientOptions } from '../types/client.ts';
+import { ModelRegistry } from '../models/registry.ts';
 
 export class ClaudeClient {
   private baseURL: string;
@@ -11,12 +12,13 @@ export class ClaudeClient {
   private caller: ClaudeCall; // 添加 caller 属性
   private defaultConversation: Conversation; // 添加 conversation 属性
   private defaultModel: string = 'claude-sonnet-4-6'; // 添加默认模型属性
+  private modelRegistry = new ModelRegistry(); // 添加模型注册表属性
 
   private constructor(baseURL: string, apiKey: string, options?: ClaudeClientOptions) {
     this.baseURL = baseURL;
     this.apiKey = apiKey;
     this.httpClient = new HttpClient(baseURL);
-    this.caller = new ClaudeCall(this.httpClient, this.apiKey, options); // 在构造函数中初始化 caller 属性
+    this.caller = new ClaudeCall(this.httpClient, this.apiKey, options, this.defaultModel); // 在构造函数中初始化 caller 属性
     this.defaultConversation = new Conversation();
   }
 
@@ -45,7 +47,10 @@ export class ClaudeClient {
   // 提供一个公共方法，让用户可以使用call()方法调用Claude API
   async call(requestBody: RequestBody, conversation?: Conversation): Promise<string> {
     const activeConv = conversation || this.defaultConversation;
-    return this.caller.call(requestBody, activeConv);
+    // 在调用 call 方法前，先解析并验证模型名称，然后生成新的对象传递给call
+    const resolvedModel = this.resolveModel(requestBody.model);
+    const requestBodyWithModel: RequestBody = { ...requestBody, model: resolvedModel };
+    return this.caller.call(requestBodyWithModel, activeConv);
   }
 
   //提供一个公共方法，让用户可以使用callStream()方法调用Claude API的流式接口
@@ -54,7 +59,14 @@ export class ClaudeClient {
     onData: (chunk: string) => void,
     conversation?: Conversation,
   ): Promise<void> {
+    const resolvedModel = this.resolveModel(requestBody.model);
+    const requestBodyWithModel: RequestBody = { ...requestBody, model: resolvedModel };
     const activeConv = conversation || this.defaultConversation;
-    return this.caller.callStream(requestBody, activeConv, onData);
+    return this.caller.callStream(requestBodyWithModel, activeConv, onData);
+  }
+
+  private resolveModel(inputModel?: string): string {
+    const resolvedModel = inputModel ?? this.defaultModel;
+    return this.modelRegistry.isModelAllowed(resolvedModel);
   }
 }

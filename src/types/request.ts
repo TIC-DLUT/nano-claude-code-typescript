@@ -60,7 +60,7 @@ export interface SystemDocumentBlock {
 
 // 定义请求体类型
 export interface RequestBody {
-  model: string;
+  model?: string;
   messages: MessageParam[];
   system?: string | Array<SystemContentBlock>; // 可选的系统提示，可以是字符串或更复杂的结构
   max_tokens: number;
