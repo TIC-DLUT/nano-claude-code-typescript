@@ -1,66 +1,13 @@
 // tool loop：让 Claude 触发 tool_use -> 本地执行 -> 回传 tool_result -> 继续对话
 
 import type { MessageParam, RequestBody } from '../types/request.ts';
-import type { ToolResultBlock, ToolUseBlock } from '../types/response.ts';
 import type { Tool } from '../types/tools.ts';
 import { ClaudeClient } from '../llm/client.ts';
 import { Conversation } from '../models/conversation.ts';
 import { executeTool } from '../tools/execute.ts';
 import { initTools } from '../tools/init.ts';
 import { getToolsForRequest, sanitizeToolsForRequest } from '../tools/registry.ts';
-
-export interface ToolLoopOptions {
-  conversation?: Conversation;
-  maxTurns?: number;
-  tools?: Tool[];
-  tool_choice?: RequestBody['tool_choice'];
-}
-
-export interface ToolLoopResult {
-  text: string;
-  conversation: Conversation;
-  turns: number;
-}
-
-function getLatestToolUses(conversation: Conversation): ToolUseBlock[] {
-  const latest = conversation.rawResponses[conversation.rawResponses.length - 1];
-  if (!latest) return [];
-  return latest.content.filter((b: any) => b?.type === 'tool_use') as ToolUseBlock[];
-}
-
-function normalizeToolResultContent(result: any): string {
-  if (typeof result === 'string') return result;
-  try {
-    return JSON.stringify(result);
-  } catch {
-    return String(result);
-  }
-}
-
-async function buildToolResults(toolUses: ToolUseBlock[]): Promise<ToolResultBlock[]> {
-  const results: ToolResultBlock[] = [];
-
-  for (const toolUse of toolUses) {
-    try {
-      const output = await executeTool(toolUse.name, toolUse.input);
-      results.push({
-        type: 'tool_result',
-        tool_use_id: toolUse.id,
-        content: normalizeToolResultContent(output),
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      results.push({
-        type: 'tool_result',
-        tool_use_id: toolUse.id,
-        content: message,
-        is_error: true,
-      });
-    }
-  }
-
-  return results;
-}
+import { ToolLoopOptions, ToolLoopResult } from './types.ts';
 
 function resolveTools(request: RequestBody, options: ToolLoopOptions): Tool[] {
   if (request.tools) return sanitizeToolsForRequest(request.tools);
