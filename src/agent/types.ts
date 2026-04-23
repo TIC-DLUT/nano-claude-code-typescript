@@ -22,6 +22,7 @@ export interface RunOptions {
   conversation?: Conversation;
   tools?: Tool[];
   tool_choice?: RequestBody['tool_choice'];
+  systemPrompt?: string;
 }
 
 export interface RunResult {

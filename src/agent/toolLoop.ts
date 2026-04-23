@@ -16,12 +16,14 @@ export interface ToolLoopParams {
   onData?: (chunk: string) => void;
 }
 
+// 获取对话中最新的工具使用块，利用到了conversation.rawResponses，这些是原始的LLM响应内容，包含了工具使用的详细信息
 function getLatestToolUses(conversation: Conversation): ToolUseBlock[] {
   const latest = conversation.rawResponses[conversation.rawResponses.length - 1];
   if (!latest) return [];
   return latest.content.filter((block): block is ToolUseBlock => block?.type === 'tool_use');
 }
 
+// 将工具执行结果规范化为字符串，方便后续作为消息内容同步回LLM，如果结果是对象则尝试JSON.stringify，如果无法转换则直接转换为字符串
 function normalizeToolResultContent(result: unknown): string {
   if (typeof result === 'string') return result;
   try {
@@ -36,7 +38,7 @@ async function buildToolResults(toolUses: ToolUseBlock[]): Promise<ToolResultBlo
 
   for (const toolUse of toolUses) {
     try {
-      const output = await executeTool(toolUse.name, toolUse.input);
+      const output = await executeTool(toolUse.name, toolUse.input); // executeTool函数会根据工具使用块中的工具名称和输入参数执行对应的工具，并返回结果
       results.push({
         type: 'tool_result',
         tool_use_id: toolUse.id,

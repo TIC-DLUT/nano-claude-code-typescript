@@ -6,6 +6,7 @@ import { getToolsForRequest, sanitizeToolsForRequest } from '../tools/registry.t
 import { initTools } from '../tools/init.ts';
 import { runToolLoop } from './toolLoop.ts';
 import type { Agent, RunOptions, ToolLoopOptions, ToolLoopResult } from './types.ts';
+import { buildSystemPrompt } from './prompt.ts';
 
 export interface RunnerDefaults {
   model?: string;
@@ -72,6 +73,7 @@ export async function runRequestStreamWithTools(
 }
 
 export function createRunner(client: ClaudeClient, defaults: RunnerDefaults = {}): Agent {
+  systemPrompt: buildSystemPrompt(''); // 预构建一次系统提示词，避免每次调用时都构建，可以提升性能
   return {
     async run(userText: string, options: RunOptions = {}) {
       const request: RequestBody = {
@@ -80,6 +82,8 @@ export function createRunner(client: ClaudeClient, defaults: RunnerDefaults = {}
         max_tokens: options.maxTokens ?? defaults.maxTokens ?? 1024,
         tools: options.tools,
         tool_choice: options.tool_choice,
+        // 注入系统提示词，构建函数在src/agent/prompt.ts中定义，根据用户输入构建完整的提示词内容
+        system_prompt: options.systemPrompt,
       };
 
       return runRequestWithTools(client, request, {
@@ -97,6 +101,8 @@ export function createRunner(client: ClaudeClient, defaults: RunnerDefaults = {}
         max_tokens: options.maxTokens ?? defaults.maxTokens ?? 1024,
         tools: options.tools,
         tool_choice: options.tool_choice,
+        // 注入系统提示词，构建函数在src/agent/prompt.ts中定义，根据用户输入构建完整的提示词内容
+        system_prompt: options.systemPrompt,
       };
 
       return runRequestStreamWithTools(client, request, onData, {

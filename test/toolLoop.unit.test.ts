@@ -6,7 +6,10 @@ import type { ResponseBody, ContentBlock } from '../src/types/response.ts';
 import type { RequestBody } from '../src/types/request.ts';
 import * as executeModule from '../src/tools/execute.ts';
 
-function makeResponse(content: ContentBlock[], stopReason: ResponseBody['stop_reason']): ResponseBody {
+function makeResponse(
+  content: ContentBlock[],
+  stopReason: ResponseBody['stop_reason'],
+): ResponseBody {
   return {
     id: 'resp-1',
     type: 'message',
@@ -72,4 +75,3 @@ describe('runToolLoop', () => {
     expect(Array.isArray(turnRequests[1].messages[0].content)).toBe(true);
   });
 });
-
