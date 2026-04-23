@@ -2,6 +2,7 @@
 import { RequestBody } from '../types/request.ts';
 import { Conversation } from '../models/conversation.ts';
 import type { ToolResultBlock, ToolUseBlock } from '../types/response.ts';
+import { executeTool } from '../tools/execute.ts';
 
 interface LoopDeps {
   callOnce: (req: RequestBody, conv: Conversation) => Promise<string | void>;

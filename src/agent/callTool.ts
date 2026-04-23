@@ -9,6 +9,7 @@ import { initTools } from '../tools/init.ts';
 import { getToolsForRequest, sanitizeToolsForRequest } from '../tools/registry.ts';
 import { ToolLoopOptions, ToolLoopResult } from './types.ts';
 
+// 过滤input_example，有些中转站对参数有要求，不能直接传整个工具对象过去
 function resolveTools(request: RequestBody, options: ToolLoopOptions): Tool[] {
   if (request.tools) return sanitizeToolsForRequest(request.tools);
   if (options.tools) return sanitizeToolsForRequest(options.tools);
