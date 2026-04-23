@@ -1,16 +1,16 @@
-import { callWithTools } from '../src/agent/callTool.ts';
+import { runRequestWithTools } from '../src/agent/runner.ts';
 import { ClaudeClient } from '../src/llm/client.ts';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-describe('callWithTools', () => {
+describe('runRequestWithTools', () => {
   it('should call tool and return response', async () => {
     const claude = ClaudeClient.newClaudeClient(
       process.env.CLAUDE_BASE_URL as string,
       process.env.CLAUDE_API_KEY as string,
     );
-    const res = await callWithTools(claude, {
+    const res = await runRequestWithTools(claude, {
       model: 'claude-sonnet-4-6',
       messages: [
         {
