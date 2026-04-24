@@ -1,3 +1,4 @@
+// 设置cli的统一输出工具，统一管理输出格式等
 import type { Printer, PrinterOptions } from './types.ts';
 
 interface JsonEvent {

@@ -16,6 +16,7 @@ function readVersionFromPackageJson(): string {
     resolve(currentDir, '../package.json'),
     resolve(currentDir, './package.json'),
   ];
+  // 尝试从多个可能的位置读取 package.json，适应不同的安装和运行环境
 
   for (const packageJsonPath of candidates) {
     try {
@@ -26,7 +27,8 @@ function readVersionFromPackageJson(): string {
         return parsed.version;
       }
     } catch {
-      // Try next candidate path.
+      // 如果读取或解析失败，继续尝试下一个路径
+      continue;
     }
   }
 
@@ -35,7 +37,7 @@ function readVersionFromPackageJson(): string {
       return process.env.npm_package_version;
     }
   } catch {
-    // Fallback below
+    // 如果访问环境变量失败，继续返回默认版本
   }
 
   return '1.0.0';
