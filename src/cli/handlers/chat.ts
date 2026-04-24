@@ -1,6 +1,6 @@
-import { initAgent } from '../../agent/init.ts';
-import type { ChatCommandOptions, CliContext, CliExitCode } from '../types.ts';
-import { CLI_EXIT_CODE } from '../types.ts';
+import { initAgent } from '../../agent/init.js';
+import type { ChatCommandOptions, CliContext, CliExitCode } from '../types.js';
+import { CLI_EXIT_CODE } from '../types.js';
 
 export async function runChat(
   prompt: string,

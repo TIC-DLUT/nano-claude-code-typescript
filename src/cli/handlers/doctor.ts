@@ -1,7 +1,7 @@
-import { initConfig, loadEnv } from '../../config/init.ts';
-import { initTools } from '../../tools/init.ts';
-import type { CliContext, CliExitCode, DoctorCommandOptions } from '../types.ts';
-import { CLI_EXIT_CODE } from '../types.ts';
+import { initConfig, loadEnv } from '../../config/init.js';
+import { initTools } from '../../tools/init.js';
+import type { CliContext, CliExitCode, DoctorCommandOptions } from '../types.js';
+import { CLI_EXIT_CODE } from '../types.js';
 
 const REQUIRED_ENV_KEYS = ['CLAUDE_BASE_URL', 'CLAUDE_API_KEY'] as const;
 

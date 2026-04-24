@@ -1,6 +1,6 @@
 import type { Command } from 'commander';
-import { runChat } from '../handlers/chat.ts';
-import type { ChatCommandOptions, CliContextFactory } from '../types.ts';
+import { runChat } from '../handlers/chat.js';
+import type { ChatCommandOptions, CliContextFactory } from '../types.js';
 
 function parsePositiveInt(value: string): number {
   const parsed = Number.parseInt(value, 10);

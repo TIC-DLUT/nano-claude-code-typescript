@@ -1,4 +1,4 @@
-import { CacheControl } from './common.ts';
+import { CacheControl } from './common.js';
 
 /**
  * 自定义（Client-side）工具：你自己在本地/服务器执行，Claude 只负责发起调用。

@@ -1,7 +1,7 @@
 // 定义请求头 & 请求体类型（Messages API）
-import { CacheControl } from './common.ts';
-import { ContentBlock } from './response.ts';
-import { Tool } from './tools.ts';
+import { CacheControl } from './common.js';
+import { ContentBlock } from './response.js';
+import { Tool } from './tools.js';
 
 export type MessageRole = 'user' | 'assistant';
 
