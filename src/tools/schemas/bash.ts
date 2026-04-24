@@ -1,7 +1,7 @@
 // TODO: bash工具
 
-import type { ClientTool } from '../../types/tools.ts';
-import { createTool } from '../tool.ts';
+import type { ClientTool } from '../../types/tools.js';
+import { createTool } from '../tool.js';
 
 export const bashTool: ClientTool = createTool({
   name: 'bash',

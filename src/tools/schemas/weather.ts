@@ -1,6 +1,6 @@
 // 定义天气工具对象
-import type { ClientTool } from '../../types/tools.ts';
-import { createTool } from '../tool.ts';
+import type { ClientTool } from '../../types/tools.js';
+import { createTool } from '../tool.js';
 
 export const weatherTool: ClientTool = createTool({
   name: 'weather',

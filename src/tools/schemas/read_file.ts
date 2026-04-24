@@ -1,6 +1,6 @@
 // 定义读文件工具
-import type { ClientTool } from '../../types/tools.ts';
-import { createTool } from '../tool.ts';
+import type { ClientTool } from '../../types/tools.js';
+import { createTool } from '../tool.js';
 
 export const readFileTool: ClientTool = createTool({
   name: 'read_file',
