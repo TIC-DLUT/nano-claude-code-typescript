@@ -5,7 +5,9 @@ import { Message } from '../src/models/message.ts';
 
 describe('ClaudeClient', () => {
   it('mocks caller and tests client logic without network requests', async () => {
-    const callSpy = vi.spyOn(ClaudeCall.prototype, 'call').mockResolvedValue('Mocked response from Claude API');
+    const callSpy = vi
+      .spyOn(ClaudeCall.prototype, 'call')
+      .mockResolvedValue('Mocked response from Claude API');
 
     const client = ClaudeClient.newClaudeClient('https://api.anthropic.com', 'fake-api-key');
 
