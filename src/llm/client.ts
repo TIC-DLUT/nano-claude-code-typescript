@@ -1,5 +1,5 @@
 import { HttpClient } from './httpClient.ts';
-import { ClaudeCall } from './call.ts';
+import { ClaudeCall, type ClaudeStreamDebugEvent } from './call.ts';
 import { RequestBody } from '../types/request.ts';
 import { Conversation } from '../models/conversation.ts';
 import { ClaudeClientOptions } from '../types/client.ts';
@@ -58,11 +58,12 @@ export class ClaudeClient {
     requestBody: RequestBody,
     onData: (chunk: string) => void,
     conversation?: Conversation,
+    onDebug?: (event: ClaudeStreamDebugEvent) => void,
   ): Promise<void> {
     const resolvedModel = this.resolveModel(requestBody.model);
     const requestBodyWithModel: RequestBody = { ...requestBody, model: resolvedModel };
     const activeConv = conversation || this.defaultConversation;
-    return this.caller.callStream(requestBodyWithModel, activeConv, onData);
+    return this.caller.callStream(requestBodyWithModel, activeConv, onData, onDebug);
   }
 
   private resolveModel(inputModel?: string): string {
