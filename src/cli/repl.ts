@@ -1,9 +1,15 @@
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
+import { pathToFileURL } from 'node:url';
 import { initAgent } from '../agent/init.ts';
 import { Conversation } from '../models/conversation.ts';
 import { getToolsForRequest } from '../tools/registry.ts';
 import type { Tool } from '../types/tools.ts';
+
+export interface ReplStartOptions {
+  model?: string;
+  streamEnabled?: boolean;
+}
 
 function printHelp(): void {
   console.log(`
@@ -23,12 +29,12 @@ function getToolLabel(tool: Tool): string {
   return 'unknown';
 }
 
-async function startRepl() {
+export async function startRepl(options: ReplStartOptions = {}): Promise<number> {
   const { run, runStream } = await initAgent();
   const rl = readline.createInterface({ input, output });
 
   let conversation = new Conversation();
-  let streamEnabled = true;
+  let streamEnabled = options.streamEnabled ?? true;
 
   console.log('Nano Claude Code REPL');
   console.log('Type /help to see commands.');
@@ -91,11 +97,11 @@ async function startRepl() {
           (chunk) => {
             output.write(chunk);
           },
-          { conversation },
+          { conversation, model: options.model },
         );
         output.write('\n');
       } else {
-        const result = await run(line, { conversation });
+        const result = await run(line, { conversation, model: options.model });
         console.log(`assistant> ${result.text}`);
       }
     } catch (error) {
@@ -103,10 +109,14 @@ async function startRepl() {
       console.error(`Error: ${message}`);
     }
   }
+
+  return 0;
 }
 
-startRepl().catch((error) => {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(`Failed to start REPL: ${message}`);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  startRepl().catch((error) => {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Failed to start REPL: ${message}`);
+    process.exitCode = 1;
+  });
+}

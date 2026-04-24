@@ -1,13 +1,8 @@
-import { initAgent } from './src/agent/init.ts';
+#!/usr/bin/env node
+import { runCli } from './src/cli/main.ts';
 
-async function main() {
-  const { run } = await initAgent();
-  const input = process.argv.slice(2).join(' ').trim() || 'Hello, Claude!';
-  const result = await run(input);
-  console.log(result.text);
-}
-
-main().catch((error) => {
-  console.error('Agent run failed:', error);
+runCli().catch((error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`CLI failed: ${message}`);
   process.exitCode = 1;
 });

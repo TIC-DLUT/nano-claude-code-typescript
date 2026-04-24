@@ -11,8 +11,9 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "start": "tsx index.ts",
-    "repl": "tsx src/cli/repl.ts",
+    "start": "tsx index.ts chat \"Hello, Claude!\"",
+    "cli": "tsx index.ts",
+    "repl": "tsx index.ts repl",
     "dev": "tsx index.ts",
     "watch": "tsx watch index.ts"
   },
