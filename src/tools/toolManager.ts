@@ -1,5 +1,5 @@
 // 工具管理（client tools / server tools）
-import { Tool } from '../types/tools.ts';
+import { Tool } from '../types/tools.js';
 
 export class ToolManager {
   private tools = new Map<string, Tool>();

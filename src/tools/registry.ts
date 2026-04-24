@@ -1,5 +1,5 @@
-import { ToolManager } from './toolManager.ts';
-import type { ClientTool, Tool } from '../types/tools.ts';
+import { ToolManager } from './toolManager.js';
+import type { ClientTool, Tool } from '../types/tools.js';
 
 export type ToolHandler = (input: any) => any | Promise<any>;
 

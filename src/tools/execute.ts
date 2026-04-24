@@ -1,5 +1,5 @@
 // 工具执行
-import { toolHandlers, toolRegistry } from './registry.ts';
+import { toolHandlers, toolRegistry } from './registry.js';
 
 export async function executeTool(toolName: string, input: any): Promise<any> {
   const tool = toolRegistry.get(toolName);
