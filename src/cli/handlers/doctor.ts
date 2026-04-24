@@ -1,4 +1,4 @@
-import { initConfig } from '../../config/init.ts';
+import { initConfig, loadEnv } from '../../config/init.ts';
 import { initTools } from '../../tools/init.ts';
 import type { CliContext, CliExitCode, DoctorCommandOptions } from '../types.ts';
 import { CLI_EXIT_CODE } from '../types.ts';
@@ -9,6 +9,7 @@ export async function runDoctor(
   options: DoctorCommandOptions,
   ctx: CliContext,
 ): Promise<CliExitCode> {
+  loadEnv();
   const missing = REQUIRED_ENV_KEYS.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {

@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "bin": {
+    "nano-claude": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -11,8 +17,10 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "lint": "eslint .",
+    "build": "tsup",
     "start": "tsx index.ts chat \"Hello, Claude!\"",
     "cli": "tsx index.ts",
+    "cli:dist": "node dist/index.js",
     "repl": "tsx index.ts repl",
     "dev": "tsx index.ts",
     "watch": "tsx watch index.ts"
@@ -31,6 +39,7 @@
     "eslint-plugin-prettier": "^5.5.5",
     "jsdom": "^29.0.2",
     "prettier": "^3.8.1",
+    "tsup": "^8.5.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.3"

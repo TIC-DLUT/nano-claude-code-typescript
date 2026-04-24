@@ -70,6 +70,7 @@ export async function runRequestStreamWithTools(
     initialToolChoice,
     maxTurns,
     onData,
+    onDebug: options.onDebug,
   });
 }
 
@@ -108,6 +109,7 @@ export function createRunner(client: ClaudeClient, defaults: RunnerDefaults = {}
         maxTurns: options.maxTurns ?? defaults.maxTurns,
         tools: options.tools,
         tool_choice: options.tool_choice,
+        onDebug: options.onDebug,
       });
     },
   };

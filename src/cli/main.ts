@@ -10,17 +10,32 @@ import { registerToolsCommand } from './commands/tools.ts';
 import type { CliContext, GlobalCliOptions } from './types.ts';
 
 function readVersionFromPackageJson(): string {
-  try {
-    const currentDir = dirname(fileURLToPath(import.meta.url));
-    const packageJsonPath = resolve(currentDir, '../../package.json');
-    const raw = readFileSync(packageJsonPath, 'utf-8');
-    const parsed = JSON.parse(raw) as { version?: unknown };
+  const currentDir = dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    resolve(currentDir, '../../package.json'),
+    resolve(currentDir, '../package.json'),
+    resolve(currentDir, './package.json'),
+  ];
 
-    if (typeof parsed.version === 'string' && parsed.version.trim()) {
-      return parsed.version;
+  for (const packageJsonPath of candidates) {
+    try {
+      const raw = readFileSync(packageJsonPath, 'utf-8');
+      const parsed = JSON.parse(raw) as { version?: unknown };
+
+      if (typeof parsed.version === 'string' && parsed.version.trim()) {
+        return parsed.version;
+      }
+    } catch {
+      // Try next candidate path.
+    }
+  }
+
+  try {
+    if (typeof process.env.npm_package_version === 'string' && process.env.npm_package_version) {
+      return process.env.npm_package_version;
     }
   } catch {
-    // Fallback below.
+    // Fallback below
   }
 
   return '1.0.0';

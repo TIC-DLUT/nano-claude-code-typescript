@@ -26,6 +26,9 @@ export async function runChat(
           model: options.model,
           maxTurns: options.maxTurns,
           maxTokens: options.maxTokens,
+          onDebug: (event) => {
+            ctx.printer.debug('stream_debug', event);
+          },
         },
       );
       ctx.printer.newline();

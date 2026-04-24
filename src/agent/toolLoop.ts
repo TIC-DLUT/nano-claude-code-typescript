@@ -3,6 +3,7 @@ import type { Tool } from '../types/tools.ts';
 import type { ToolResultBlock, ToolUseBlock } from '../types/response.ts';
 import type { ToolLoopResult } from './types.ts';
 import type { ClaudeClient } from '../llm/client.ts';
+import type { ClaudeStreamDebugEvent } from '../llm/call.ts';
 import { Conversation } from '../models/conversation.ts';
 import { executeTool } from '../tools/execute.ts';
 
@@ -14,6 +15,7 @@ export interface ToolLoopParams {
   initialToolChoice: RequestBody['tool_choice'];
   maxTurns: number;
   onData?: (chunk: string) => void;
+  onDebug?: (event: ClaudeStreamDebugEvent) => void;
 }
 
 // 获取对话中最新的工具使用块，利用到了conversation.rawResponses，这些是原始的LLM响应内容，包含了工具使用的详细信息
@@ -63,7 +65,7 @@ async function callTurn(
   turnRequest: RequestBody,
 ): Promise<string | undefined> {
   if (params.onData) {
-    await params.client.callStream(turnRequest, params.onData, params.conversation);
+    await params.client.callStream(turnRequest, params.onData, params.conversation, params.onDebug);
     return params.conversation.getLatestTextContent();
   }
 

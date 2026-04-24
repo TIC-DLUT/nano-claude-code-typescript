@@ -1,6 +1,5 @@
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { pathToFileURL } from 'node:url';
 import { initAgent } from '../agent/init.ts';
 import { Conversation } from '../models/conversation.ts';
 import { getToolsForRequest } from '../tools/registry.ts';
@@ -101,7 +100,13 @@ export async function startRepl(options: ReplStartOptions = {}): Promise<CliExit
           (chunk) => {
             printer.assistantChunk(chunk);
           },
-          { conversation, model: options.model },
+          {
+            conversation,
+            model: options.model,
+            onDebug: (event) => {
+              printer.debug('stream_debug', event);
+            },
+          },
         );
         printer.newline();
       } else {
@@ -115,13 +120,4 @@ export async function startRepl(options: ReplStartOptions = {}): Promise<CliExit
   }
 
   return CLI_EXIT_CODE.OK;
-}
-
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  startRepl().catch((error) => {
-    const message = error instanceof Error ? error.message : String(error);
-    const printer = createPrinter();
-    printer.error(`Failed to start REPL: ${message}`);
-    process.exitCode = 1;
-  });
 }
