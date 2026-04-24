@@ -49,3 +49,5 @@ export interface CliContext {
   options: GlobalCliOptions;
   printer: Printer;
 }
+
+export type CliContextFactory = (options: GlobalCliOptions) => CliContext;

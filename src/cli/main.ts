@@ -2,10 +2,12 @@ import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createPrinter } from './printer.ts';
 import { registerChatCommand } from './commands/chat.ts';
 import { registerDoctorCommand } from './commands/doctor.ts';
 import { registerReplCommand } from './commands/repl.ts';
 import { registerToolsCommand } from './commands/tools.ts';
+import type { CliContext, GlobalCliOptions } from './types.ts';
 
 function readVersionFromPackageJson(): string {
   try {
@@ -26,6 +28,16 @@ function readVersionFromPackageJson(): string {
 
 const CLI_VERSION = readVersionFromPackageJson();
 
+export function createCliContext(options: GlobalCliOptions = {}): CliContext {
+  return {
+    options,
+    printer: createPrinter({
+      format: options.json ? 'json' : 'text',
+      verbose: options.verbose,
+    }),
+  };
+}
+
 export function buildCliProgram(): Command {
   const program = new Command();
 
@@ -35,10 +47,10 @@ export function buildCliProgram(): Command {
     .version(CLI_VERSION)
     .showHelpAfterError('(add --help for additional information)');
 
-  registerChatCommand(program);
-  registerReplCommand(program);
-  registerToolsCommand(program);
-  registerDoctorCommand(program);
+  registerChatCommand(program, createCliContext);
+  registerReplCommand(program, createCliContext);
+  registerToolsCommand(program, createCliContext);
+  registerDoctorCommand(program, createCliContext);
 
   return program;
 }

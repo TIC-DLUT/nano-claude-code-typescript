@@ -1,28 +1,26 @@
 import { initAgent } from '../../agent/init.ts';
+import type { ChatCommandOptions, CliContext, CliExitCode } from '../types.ts';
+import { CLI_EXIT_CODE } from '../types.ts';
 
-export interface ChatHandlerOptions {
-  stream?: boolean;
-  model?: string;
-  maxTurns?: number;
-  maxTokens?: number;
-}
-
-export async function runChat(prompt: string, options: ChatHandlerOptions): Promise<number> {
+export async function runChat(
+  prompt: string,
+  options: ChatCommandOptions,
+  ctx: CliContext,
+): Promise<CliExitCode> {
   const input = prompt.trim();
   if (!input) {
-    console.error('Prompt is required for chat command.');
-    return 2;
+    ctx.printer.error('Prompt is required for chat command.');
+    return CLI_EXIT_CODE.INVALID_ARGUMENT;
   }
 
   try {
     const { run, runStream } = await initAgent();
 
     if (options.stream) {
-      process.stdout.write('assistant> ');
       await runStream(
         input,
         (chunk) => {
-          process.stdout.write(chunk);
+          ctx.printer.assistantChunk(chunk);
         },
         {
           model: options.model,
@@ -30,8 +28,8 @@ export async function runChat(prompt: string, options: ChatHandlerOptions): Prom
           maxTokens: options.maxTokens,
         },
       );
-      process.stdout.write('\n');
-      return 0;
+      ctx.printer.newline();
+      return CLI_EXIT_CODE.OK;
     }
 
     const result = await run(input, {
@@ -40,11 +38,11 @@ export async function runChat(prompt: string, options: ChatHandlerOptions): Prom
       maxTokens: options.maxTokens,
     });
 
-    console.log(result.text);
-    return 0;
+    ctx.printer.assistant(result.text);
+    return CLI_EXIT_CODE.OK;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(`chat failed: ${message}`);
-    return 1;
+    ctx.printer.error(`chat failed: ${message}`);
+    return CLI_EXIT_CODE.RUNTIME_ERROR;
   }
 }

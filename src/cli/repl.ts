@@ -5,14 +5,18 @@ import { initAgent } from '../agent/init.ts';
 import { Conversation } from '../models/conversation.ts';
 import { getToolsForRequest } from '../tools/registry.ts';
 import type { Tool } from '../types/tools.ts';
+import { createPrinter } from './printer.ts';
+import { CLI_EXIT_CODE } from './types.ts';
+import type { CliExitCode, Printer } from './types.ts';
 
 export interface ReplStartOptions {
   model?: string;
   streamEnabled?: boolean;
+  printer?: Printer;
 }
 
-function printHelp(): void {
-  console.log(`
+function printHelp(printer: Printer): void {
+  printer.info(`
 Commands:
   /help           Show help
   /tools          List registered tools
@@ -29,15 +33,16 @@ function getToolLabel(tool: Tool): string {
   return 'unknown';
 }
 
-export async function startRepl(options: ReplStartOptions = {}): Promise<number> {
+export async function startRepl(options: ReplStartOptions = {}): Promise<CliExitCode> {
   const { run, runStream } = await initAgent();
   const rl = readline.createInterface({ input, output });
+  const printer = options.printer ?? createPrinter();
 
   let conversation = new Conversation();
   let streamEnabled = options.streamEnabled ?? true;
 
-  console.log('Nano Claude Code REPL');
-  console.log('Type /help to see commands.');
+  printer.info('Nano Claude Code REPL');
+  printer.info('Type /help to see commands.');
 
   while (true) {
     const line = (await rl.question('> ')).trim();
@@ -50,73 +55,73 @@ export async function startRepl(options: ReplStartOptions = {}): Promise<number>
       }
 
       if (line === '/help') {
-        printHelp();
+        printHelp(printer);
         continue;
       }
 
       if (line === '/reset') {
         conversation = new Conversation();
-        console.log('Conversation reset.');
+        printer.info('Conversation reset.');
         continue;
       }
 
       if (line === '/tools') {
         const tools = getToolsForRequest();
         if (!tools.length) {
-          console.log('No tools registered.');
+          printer.info('No tools registered.');
           continue;
         }
-        console.log('Registered tools:');
+        printer.info('Registered tools:');
         for (const tool of tools) {
-          console.log(`- ${getToolLabel(tool)}`);
+          printer.info(`- ${getToolLabel(tool)}`);
         }
         continue;
       }
 
       if (line === '/stream on') {
         streamEnabled = true;
-        console.log('Stream mode enabled.');
+        printer.info('Stream mode enabled.');
         continue;
       }
 
       if (line === '/stream off') {
         streamEnabled = false;
-        console.log('Stream mode disabled.');
+        printer.info('Stream mode disabled.');
         continue;
       }
 
-      console.log('Unknown command. Use /help.');
+      printer.warn('Unknown command. Use /help.');
       continue;
     }
 
     try {
       if (streamEnabled) {
-        output.write('assistant> ');
         await runStream(
           line,
           (chunk) => {
-            output.write(chunk);
+            printer.assistantChunk(chunk);
           },
           { conversation, model: options.model },
         );
-        output.write('\n');
+        printer.newline();
       } else {
         const result = await run(line, { conversation, model: options.model });
-        console.log(`assistant> ${result.text}`);
+        printer.assistant(result.text);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`Error: ${message}`);
+      printer.error(`Error: ${message}`);
     }
   }
 
-  return 0;
+  return CLI_EXIT_CODE.OK;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   startRepl().catch((error) => {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(`Failed to start REPL: ${message}`);
+    const printer = createPrinter();
+    printer.error(`Failed to start REPL: ${message}`);
     process.exitCode = 1;
   });
 }
